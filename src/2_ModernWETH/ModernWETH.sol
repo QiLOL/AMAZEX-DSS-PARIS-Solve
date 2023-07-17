@@ -29,7 +29,7 @@ contract ModernWETH is ERC20("Modern Insec Wrapped Ether", "mWETH"), ReentrancyG
     /**
      * @notice Withdraw, burn all wrapped ether to get all deposited ether
      */
-    function withdrawAll() external nonReentrant {
+    function withdrawAll() external nonReentrant { // @note need repeat the call, since here is an reentry protector
         (bool success,) = msg.sender.call{value: balanceOf(msg.sender)}("");
         require(success, "mWETH: ETH transfer failed");
 
@@ -40,6 +40,6 @@ contract ModernWETH is ERC20("Modern Insec Wrapped Ether", "mWETH"), ReentrancyG
      * @notice Burn all internal utility to burn all wrapped ether from the caller
      */
     function _burnAll() internal {
-        _burn(msg.sender, balanceOf(msg.sender));
+        _burn(msg.sender, balanceOf(msg.sender)); //@note balanceOf(msg.sender) is a dynamic operation 
     }
 }

@@ -32,7 +32,7 @@ contract MagicETH is ERC20("Magic insecure ETH", "mETH") {
      * @dev Burn Magic Ether
      */
     function burnFrom(address account, uint256 amount) public {
-        uint256 currentAllowance = allowance(msg.sender, account);
+        uint256 currentAllowance = allowance(msg.sender, account); //@note just like Deus DAO incident, spender and owner are misplaced
         require(currentAllowance >= amount, "ERC20: insufficient allowance");
 
         // decrease allowance

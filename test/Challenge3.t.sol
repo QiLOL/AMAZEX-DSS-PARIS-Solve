@@ -72,8 +72,8 @@ contract Challenge3Test is Test {
         // forge test --match-contract Challenge3Test -vvvv                   //
         //////////////////////////////////////////////////////////////////////*/
 
-
-
+        createDeployer.cleanUp();
+        lendingPool.emergencyStop();
     
         //====================================================================//
         vm.stopPrank();
@@ -89,8 +89,8 @@ contract Challenge3Test is Test {
         // forge test --match-contract Challenge3Test -vvvv           //
         //////////////////////////////////////////////////////////////*/
 
-
-
+        createDeployer = CreateDeployer(create2Deployer.deploy());
+        lendingHack = LendingHack(createDeployer.deploy(false, address(usdc)));
 
         //=============================================================//
         vm.stopPrank();

@@ -30,7 +30,7 @@ contract WETH is ERC20("WETH", "WETH") {
     }
 
 
-    fallback() external payable {
+    fallback() external payable { //@note simulation purpose
         deposit();
     }
 }
