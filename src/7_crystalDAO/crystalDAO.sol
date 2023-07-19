@@ -35,6 +35,8 @@ interface IDaoVault {
      * @return bytes32 Domain separator.
      */
     function getDomainSeparator() external view returns (bytes32);
+    //@note helper
+    function owner() external returns(address);
 }
 
 /**
@@ -57,6 +59,7 @@ contract DaoVaultImplementation is Initializable, EIP712Upgradeable {
     constructor() {
         // disable owner
         owner = msg.sender;
+        // emit ttttt(owner);
         _disableInitializers();
     }
 
@@ -68,10 +71,25 @@ contract DaoVaultImplementation is Initializable, EIP712Upgradeable {
         // EIP712 init: name DaoWallet, version 1.0
         __EIP712_init("DaoWallet", "1.0");
 
+//  ➜  AMAZEX-DSS-PARIS-Solve git:(main) ✗ forge inspect DaoVaultImplementation storage-layout --pretty
+// | Name           | Type                        | Slot | Offset | Bytes | Contract                                               |
+// |----------------|-----------------------------|------|--------|-------|--------------------------------------------------------|
+// | _initialized   | uint8                       | 0    | 0      | 1     | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | _initializing  | bool                        | 0    | 1      | 1     | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | _hashedName    | bytes32                     | 1    | 0      | 32    | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | _hashedVersion | bytes32                     | 2    | 0      | 32    | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | _name          | string                      | 3    | 0      | 32    | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | _version       | string                      | 4    | 0      | 32    | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | __gap          | uint256[48]                 | 5    | 0      | 1536  | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | owner          | address                     | 53   | 0      | 20    | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | usedSigs       | mapping(bytes32 => bool)    | 54   | 0      | 32    | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+// | nonces         | mapping(address => uint256) | 55   | 0      | 32    | src/7_crystalDAO/crystalDAO.sol:DaoVaultImplementation |
+
         // postInit: set owner with gas optimizations
         assembly {
-            sstore(0, _owner)
+            sstore(0, _owner) //@note not the right slot
         }
+       
     }
 
     /**
@@ -147,4 +165,6 @@ contract FactoryDao {
         // Initialize clone
         DaoVaultImplementation(wallet).initialize(msg.sender);
     }
+
+    
 }

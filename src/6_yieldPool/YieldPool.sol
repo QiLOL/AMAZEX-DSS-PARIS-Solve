@@ -165,7 +165,7 @@ contract YieldPool is ERC20("Safe Yield Pool", "syLP"), IERC3156FlashLender {
      * @dev Swap ETH to TOKEN
      * @notice Provided ETH will be sold for TOKEN
      */
-    function ethToToken() public payable {
+    function ethToToken() public payable { //@audit the price should be affected with the flashloan since based on the reserve.
         uint256 tokenReserve = getReserve();
         uint256 tokensBought = getAmountOfTokens(msg.value, address(this).balance - msg.value, tokenReserve);
 

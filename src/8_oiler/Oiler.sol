@@ -93,7 +93,7 @@ contract Oiler is ERC20 {
             // User has not borrowed any tokens, so health is theoretically infinite
             return type(uint256).max;
         }
-        uint256 collateralValue = users[_user].collateral * getPriceToken();
+        uint256 collateralValue = users[_user].collateral * getPriceToken(); //@note unreliable oracle
         uint256 borrowValue = users[_user].borrow;
         uint256 hf = collateralValue * CF / borrowValue;
         // Includes 2 decimals
